@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EstateHub | Property Management Portal</title>
+
+<style>
+:root {
+  --navy:#17243a;
+  --blue:#3767d6;
+  --sky:#edf3ff;
+  --ink:#202b3c;
+  --muted:#718096;
+  --line:#e5eaf1;
+  --bg:#f5f7fb;
+  --green:#16865b;
+  --amber:#b7791f;
+  --red:#c43d4b;
+  --white:#fff;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+
+button,input,select,textarea { font:inherit; }
+
+button {
+  cursor:pointer;
+  border:0;
+  border-radius:9px;
+  padding:10px 14px;
+  background:var(--blue);
+  color:#fff;
+  font-weight:600;
+}
+
+button:hover { filter:brightness(.95); }
+button.secondary { background:#e9eef8;color:var(--navy); }
+button.danger { background:#fff0f1;color:var(--red); }
+button.small { padding:6px 9px;font-size:12px; }
+
+.auth-wrap {
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:linear-gradient(135deg,#17243a,#3459a8);
+}
+
+.auth-card {
+  background:#fff;
+  padding:32px;
+  border-radius:18px;
+  width:min(430px,100%);
+  box-shadow:0 20px 60px #101c3533;
+}
+
+.brand {
+  font-size:24px;
+  font-weight:800;
+  color:var(--navy);
+}
+
+.brand span { color:var(--blue); }
+
+.auth-card p {
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.field {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin:13px 0;
+}
+
+.field label {
+  font-size:13px;
+  font-weight:650;
+  color:#4b5870;
+}
+
+.field input,.field select,.field textarea,
+.toolbar input,.toolbar select {
+  width:100%;
+  padding:11px 12px;
+  border:1px solid #dce3ed;
+  border-radius:9px;
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+}
+
+.field input:focus,.field select:focus,
+.field textarea:focus,.toolbar input:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px #3767d61c;
+}
+
+.hint { font-size:12px;color:var(--muted); }
+.error { color:var(--red);font-size:13px;min-height:18px; }
+
+.app { display:none;min-height:100vh; }
+
+.sidebar {
+  position:fixed;
+  inset:0 auto 0 0;
+  width:235px;
+  background:var(--navy);
+  color:#fff;
+  padding:24px 15px;
+  display:flex;
+  flex-direction:column;
+  z-index:3;
+}
+
+.sidebar .brand {
+  color:#fff;
+  padding:0 10px 30px;
+}
+
+.sidebar .brand span { color:#8eafff; }
+
+.nav-btn {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  width:100%;
+  text-align:left;
+  color:#c8d2e3;
+  background:transparent;
+  margin:3px 0;
+  padding:12px;
+  border-radius:9px;
+  font-weight:550;
+}
+
+.nav-btn.active,.nav-btn:hover {
+  background:#ffffff18;
+  color:#fff;
+}
+
+.side-bottom {
+  margin-top:auto;
+  color:#aab7cc;
+  font-size:12px;
+  padding:12px;
+}
+
+.main {
+  margin-left:235px;
+  min-height:100vh;
+}
+
+.topbar {
+  height:72px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 30px;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+.topbar h2 { font-size:18px;margin:0; }
+
+.user-area {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:13px;
+}
+
+.avatar {
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:var(--sky);
+  color:var(--blue);
+  display:grid;
+  place-items:center;
+  font-weight:800;
+}
+
+.content {
+  padding:28px;
+  max-width:1500px;
+  margin:auto;
+}
+
+.page-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:22px;
+}
+
+.page-head h1 { font-size:25px;margin:0 0 5px; }
+.sub { color:var(--muted);font-size:13px; }
+
+.stats {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:22px;
+}
+
+.stat,.panel {
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px;
+}
+
+.stat .label { color:var(--muted);font-size:13px; }
+.stat .value { font-size:27px;font-weight:800;margin-top:8px; }
+.stat .note { font-size:12px;color:var(--muted);margin-top:4px; }
+
+.grid-2 {
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:16px;
+}
+
+.panel h3 { font-size:16px;margin:0 0 15px; }
+
+.toolbar {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+.toolbar input { max-width:300px;flex:1; }
+.toolbar select { width:auto;min-width:140px; }
+
+.table-wrap { overflow-x:auto; }
+
+table {
+  border-collapse:collapse;
+  width:100%;
+  min-width:650px;
+}
+
+th,td {
+  text-align:left;
+  padding:13px 12px;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+th {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--muted);
+  background:#fafbfd;
+}
+
+td strong { font-weight:650; }
+.muted { color:var(--muted); }
+
+.pill {
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:30px;
+  font-size:11px;
+  font-weight:700;
+  background:#edf1f7;
+  color:#596579;
+}
+
+.pill.Available,.pill.Approved,.pill.Completed {
+  background:#e7f7ef;
+  color:var(--green);
+}
+
+.pill.Pending,.pill.Under-Review {
+  background:#fff5df;
+  color:var(--amber);
+}
+
+.pill.Rejected,.pill.Cancelled {
+  background:#fff0f1;
+  color:var(--red);
+}
+
+.actions { display:flex;gap:6px;flex-wrap:wrap; }
+.empty { text-align:center;padding:30px;color:var(--muted); }
+
+.activity {
+  display:flex;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+.dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--blue);
+  margin-top:5px;
+  flex:none;
+}
+
+.bar-row {
+  display:grid;
+  grid-template-columns:105px 1fr 30px;
+  gap:10px;
+  align-items:center;
+  margin:13px 0;
+  font-size:12px;
+}
+
+.bar {
+  height:9px;
+  background:#edf1f7;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.bar span {
+  display:block;
+  height:100%;
+  background:var(--blue);
+  border-radius:20px;
+}
+
+.modal {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0d172b88;
+  z-index:10;
+  place-items:center;
+  padding:18px;
+}
+
+.modal.show { display:grid; }
+
+.modal-card {
+  background:#fff;
+  border-radius:16px;
+  width:min(540px,100%);
+  max-height:90vh;
+  overflow:auto;
+  padding:23px;
+}
+
+.modal-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.modal-head h3 { margin:0; }
+.close { background:#edf1f7;color:var(--ink);padding:7px 10px; }
+
+.form-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 12px;
+}
+
+.form-grid .full { grid-column:1/-1; }
+
+.form-actions {
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:18px;
+}
+
+.toast {
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  background:#17243a;
+  color:#fff;
+  padding:13px 18px;
+  border-radius:10px;
+  box-shadow:0 8px 30px #0002;
+  z-index:20;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.25s;
+  pointer-events:none;
+}
+
+.toast.show {
+  opacity:1;
+  transform:translateY(0);
+}
+
+.mobile-menu {
+  display:none;
+  background:transparent;
+  color:var(--navy);
+  font-size:21px;
+  padding:5px;
+}
+
+.hidden { display:none!important; }
+
+@media(max-width:950px) {
+  .stats { grid-template-columns:repeat(2,1fr); }
+  .grid-2 { grid-template-columns:1fr; }
+}
+
+@media(max-width:700px) {
+  .sidebar { transform:translateX(-100%);transition:.25s; }
+  .sidebar.open { transform:translateX(0); }
+  .main { margin-left:0; }
+  .mobile-menu { display:block; }
+  .topbar { padding:0 16px; }
+  .content { padding:20px 14px; }
+  .page-head { align-items:flex-start;flex-direction:column; }
+  .stats { gap:10px; }
+  .stat { padding:14px; }
+  .stat .value { font-size:23px; }
+  .form-grid { grid-template-columns:1fr; }
+  .form-grid .full { grid-column:auto; }
+  .user-area #userRole { display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="authScreen" class="auth-wrap">
+  <div class="auth-card">
+    <div class="brand">Estate<span>Hub</span></div>
+    <h2 id="authTitle">Welcome back</h2>
+    <p>Sign in to manage properties, requests and bookings from one place.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Email address</label>
+        <input id="loginEmail" type="email" required placeholder="you@example.com">
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input id="loginPassword" type="password" required minlength="4" placeholder="Enter password">
+      </div>
+
+      <div id="loginError" class="error"></div>
+      <button type="submit" style="width:100%">Sign in</button>
+    </form>
+
+    <div style="text-align:center;margin-top:18px;font-size:13px">
+      New here? <a href="#" id="showRegister">Create an account</a>
+    </div>
+
+    <p class="hint" style="margin-top:20px">
+      Demo accounts:
+      admin@estatehub.demo / admin123 ·
+      manager@estatehub.demo / manager123 ·
+      tenant@estatehub.demo / tenant123
+    </p>
+  </div>
+</div>
+
+<div id="app" class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">Estate<span>Hub</span></div>
+
+    <button class="nav-btn active" data-page="dashboard">▦ Dashboard</button>
+    <button class="nav-btn" data-page="properties">⌂ Properties</button>
+    <button class="nav-btn" data-page="requests">▤ Requests & bookings</button>
+    <button class="nav-btn" data-page="users" id="usersNav">♙ User management</button>
+    <button class="nav-btn" data-page="reports">▥ Reports</button>
+
+    <div class="side-bottom">
+      Property management portal<br>© 2026 EstateHub
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile-menu" id="menuBtn">☰</button>
+        <h2 id="topTitle">Dashboard</h2>
+      </div>
+
+      <div class="user-area">
+        <span id="userRole" class="muted"></span>
+        <div class="avatar" id="avatar">U</div>
+        <strong id="userName"></strong>
+        <button class="secondary small" id="logoutBtn">Log out</button>
+      </div>
+    </header>
+
+    <section class="content" id="pageContent"></section>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add record</h3>
+      <button class="close" id="closeModal">✕</button>
+    </div>
+
+    <form id="modalForm">
+      <div id="modalFields"></div>
+      <div class="form-actions">
+        <button type="button" class="secondary" id="cancelModal">Cancel</button>
+        <button type="submit">Save record</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+const STORAGE_KEY = "estatehub_demo_v1";
+
+const seed = {
+ users:[
+  {id:1,name:"Portal Administrator",email:"admin@estatehub.demo",password:"admin123",role:"Admin"},
+  {id:2,name:"Property Manager",email:"manager@estatehub.demo",password:"manager123",role:"Manager"},
+  {id:3,name:"Demo Tenant",email:"tenant@estatehub.demo",password:"tenant123",role:"Tenant"}
+ ],
+
+ properties:[
+  {id:101,name:"Maple Residency - 2BHK",type:"Apartment",location:"Ludhiana",rent:18000,status:"Available",owner:"EstateHub"},
+  {id:102,name:"Green Villa",type:"Villa",location:"Chandigarh",rent:32000,status:"Occupied",owner:"EstateHub"},
+  {id:103,name:"City Centre Shop",type:"Commercial",location:"Ludhiana",rent:25000,status:"Available",owner:"EstateHub"},
+  {id:104,name:"Sunrise Heights - 3BHK",type:"Apartment",location:"Mohali",rent:24000,status:"Maintenance",owner:"EstateHub"}
+ ],
+
+ requests:[
+  {id:501,propertyId:101,requester:"Demo Tenant",email:"tenant@estatehub.demo",type:"Booking",details:"Interested in a site visit this weekend.",status:"Pending",date:"2026-11-18"},
+  {id:502,propertyId:102,requester:"Riya Sharma",email:"riya@example.com",type:"Maintenance",details:"Kitchen tap needs repair.",status:"Under Review",date:"2026-11-17"}
+ ],
+
+ activity:[
+  {text:"Welcome to EstateHub. Demo data has been loaded.",date:new Date().toLocaleString()}
+ ]
+};
+
+let db = loadDB();
+let currentUser = null;
+let currentPage = "dashboard";
+let editing = null;
+
+function loadDB() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(seed);
+  } catch(e) {
+    return structuredClone(seed);
+  }
+}
+
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+}
+
+function esc(s) {
+  return String(s??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
+
+function logActivity(text) {
+  db.activity.unshift({text,date:new Date().toLocaleString()});
+  db.activity=db.activity.slice(0,30);
+  saveDB();
+}
+
+function toast(msg) {
+  const el=document.getElementById("toast");
+  el.textContent=msg;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),2600);
+}
+
+function canManage() {
+  return ["Admin","Manager"].includes(currentUser.role);
+}
+
+function propertyName(id) {
+  return db.properties.find(p=>p.id==id)?.name || "Deleted property";
+}
+
+function showAuth() {
+  document.getElementById("authScreen").style.display="grid";
+  document.getElementById("app").style.display="none";
+}
+
+function showApp() {
+  document.getElementById("authScreen").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("userName").textContent=currentUser.name;
+  document.getElementById("userRole").textContent=currentUser.role;
+  document.getElementById("avatar").textContent=currentUser.name[0].toUpperCase();
+  document.getElementById("usersNav").classList.toggle("hidden",currentUser.role!=="Admin");
+  navigate("dashboard");
+}
+
+document.getElementById("loginForm").addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+  const pass=document.getElementById("loginPassword").value;
+
+  const u=db.users.find(x=>x.email.toLowerCase()===email && x.password===pass);
+
+  if(!u) {
+    document.getElementById("loginError").textContent="Incorrect email or password.";
+    return;
+  }
+
+  currentUser=u;
+  logActivity(`${u.name} signed in.`);
+  showApp();
+});
+
+document.getElementById("showRegister").addEventListener("click",e=>{
+  e.preventDefault();
+  openRegister();
+});
+
+function openRegister() {
+  document.getElementById("modalTitle").textContent="Create tenant account";
+
+  document.getElementById("modalFields").innerHTML=`
+    <div class="field">
+      <label>Full name *</label>
+      <input name="name" required maxlength="60">
+    </div>
+
+    <div class="field">
+      <label>Email *</label>
+      <input name="email" type="email" required>
+    </div>
+
+    <div class="field">
+      <label>Password (minimum 6 characters) *</label>
+      <input name="password" type="password" minlength="6" required>
+    </div>
+
+    <p class="hint">
+      Public registration creates a Tenant account.
+      Admin and Manager roles are assigned by an administrator.
+    </p>
+  `;
+
+  editing={kind:"register"};
+  document.getElementById("modal").classList.add("show");
+}
+
+document.getElementById("modalForm").addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const data=Object.fromEntries(new FormData(e.target));
+
+  if(editing?.kind==="register") {
+    if(db.users.some(u=>u.email.toLowerCase()===data.email.toLowerCase())) {
+      toast("An account with this email already exists.");
+      return;
+    }
+
+    const u={
+      id:Date.now(),
+      name:data.name.trim(),
+      email:data.email.trim(),
+      password:data.password,
+      role:"Tenant"
+    };
+
+    db.users.push(u);
+    saveDB();
+    closeModal();
+    toast("Account created. You can now sign in.");
+    return;
+  }
+
+  if(editing?.kind==="property") {
+    const p={
+      id:editing.id||Date.now(),
+      name:data.name.trim(),
+      type:data.type,
+      location:data.location.trim(),
+      rent:Number(data.rent),
+      status:data.status,
+      owner:data.owner.trim()
+    };
+
+    if(editing.id) {
+      db.properties=db.properties.map(x=>x.id===editing.id?p:x);
+      logActivity(`Property "${p.name}" was updated.`);
+    } else {
+      db.properties.push(p);
+      logActivity(`Property "${p.name}" was added.`);
+    }
+  }
+
+  if(editing?.kind==="request") {
+    const r={
+      id:editing.id||Date.now(),
+      propertyId:Number(data.propertyId),
+      requester:editing.id?editing.old.requester:currentUser.name,
+      email:editing.id?editing.old.email:currentUser.email,
+      type:data.type,
+      details:data.details.trim(),
+      status:editing.id?editing.old.status:"Pending",
+      date:editing.id?editing.old.date:new Date().toISOString().slice(0,10)
+    };
+
+    if(editing.id) {
+      db.requests=db.requests.map(x=>x.id===editing.id?r:x);
+    } else {
+      db.requests.push(r);
+      logActivity(`${r.type} request submitted by ${r.requester}.`);
+    }
+  }
+
+  if(editing?.kind==="user") {
+    db.users=db.users.map(u=>u.id===editing.id?{
+      ...u,
+      name:data.name.trim(),
+      role:data.role
+    }:u);
+
+    logActivity(`User ${data.name} was updated.`);
+  }
+
+  saveDB();
+  closeModal();
+  renderPage();
+  toast("Record saved successfully.");
+});
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+  editing=null;
+}
+
+document.getElementById("closeModal").onclick=closeModal;
+document.getElementById("cancelModal").onclick=closeModal;
+
+document.getElementById("logoutBtn").onclick=()=>{
+  logActivity(`${currentUser.name} signed out.`);
+  currentUser=null;
+  showAuth();
+};
+
+document.getElementById("menuBtn").onclick=()=>{
+  document.getElementById("sidebar").classList.toggle("open");
+};
+
+document.querySelectorAll(".nav-btn").forEach(b=>{
+  b.addEventListener("click",()=>{
+    navigate(b.dataset.page);
+    document.getElementById("sidebar").classList.remove("open");
+  });
+});
+
+function navigate(page) {
+  if(page==="users" && currentUser.role!=="Admin") {
+    toast("Only Admin can manage users.");
+    return;
+  }
+
+  currentPage=page;
+
+  document.querySelectorAll(".nav-btn").forEach(b=>{
+    b.classList.toggle("active",b.dataset.page===page);
+  });
+
+  document.getElementById("topTitle").textContent=({
+    dashboard:"Dashboard",
+    properties:"Properties",
+    requests:"Requests & bookings",
+    users:"User management",
+    reports:"Reports"
+  })[page];
+
+  renderPage();
+}
+
+function renderPage() {
+  ({
+    dashboard:renderDashboard,
+    properties:renderProperties,
+    requests:renderRequests,
+    users:renderUsers,
+    reports:renderReports
+  })[currentPage]();
+}
+
+function stat(label,value,note) {
+  return `
+    <div class="stat">
+      <div class="label">${label}</div>
+      <div class="value">${value}</div>
+      <div class="note">${note}</div>
+    </div>
+  `;
+}
+
+function renderDashboard() {
+  const mine=db.requests.filter(r=>
+    currentUser.role!=="Tenant" || r.email===currentUser.email
+  );
+
+  const pending=mine.filter(r=>
+    r.status==="Pending" || r.status==="Under Review"
+  ).length;
+
+  const occupied=db.properties.filter(p=>p.status==="Occupied").length;
+  const available=db.properties.filter(p=>p.status==="Available").length;
+
+  document.getElementById("pageContent").innerHTML=`
+    <div class="page-head">
+      <div>
+        <h1>Good ${
+          new Date().getHours()<12?"morning":
+          new Date().getHours()<18?"afternoon":"evening"
+        }, ${esc(currentUser.name.split(" ")[0])}</h1>
+
+        <div class="sub">
+          Here's what's happening across your property portfolio.
+        </div>
+      </div>
+
+      ${
+        canManage()
+        ? '<button onclick="openProperty()">＋ Add property</button>'
+        : '<button onclick="openRequest()">＋ New request</button>'
+      }
+    </div>
+
+    <div class="stats">
+      ${stat("Total properties",db.properties.length,"Across all locations")}
+      ${stat("Available properties",available,"Ready for occupancy")}
+      ${stat("Occupied properties",occupied,"Currently rented")}
+      ${stat("Open requests",pending,"Awaiting action")}
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Recent requests</h3>
+        ${requestRows(mine.slice().sort((a,b)=>b.id-a.id).slice(0,5),false)}
+      </div>
+
+      <div class="panel">
+        <h3>Recent activity</h3>
+        ${
+          db.activity.slice(0,6).map(a=>`
+            <div class="activity">
+              <span class="dot"></span>
+              <div>
+                ${esc(a.text)}
+                <div class="hint" style="margin-top:4px">${esc(a.date)}</div>
+              </div>
+            </div>
+          `).join("") || '<div class="empty">No activity yet.</div>'
+        }
+      </div>
+    </div>
+  `;
+}
+
+function renderProperties() {
+  const add=canManage()
+    ? '<button onclick="openProperty()">＋ Add property</button>'
+    : "";
+
+  document.getElementById("pageContent").innerHTML=`
+    <div class="page-head">
+      <div>
+        <h1>Properties</h1>
+        <div class="sub">Browse and manage property records.</div>
+      </div>
+      ${add}
+    </div>
+
+    <div class="panel">
+      <div class="toolbar">
+        <input id="propertySearch" placeholder="Search name or location..." oninput="filterProperties()">
+
+        <select id="propertyStatus" onchange="filterProperties()">
+          <option value="">All statuses</option>
+          <option>Available</option>
+          <option>Occupied</option>
+          <option>Maintenance</option>
+        </select>
+
+        <select id="propertyType" onchange="filterProperties()">
+          <option value="">All types</option>
+          <option>Apartment</option>
+          <option>Villa</option>
+          <option>Commercial</option>
+          <option>House</option>
+        </select>
+      </div>
+
+      <div id="propertyTable" class="table-wrap"></div>
+    </div>
+  `;
+
+  filterProperties();
+}
+
+function filterProperties() {
+  const q=(document.getElementById("propertySearch")?.value||"").toLowerCase();
+  const s=document.getElementById("propertyStatus")?.value||"";
+  const t=document.getElementById("propertyType")?.value||"";
+
+  const list=db.properties.filter(p=>
+    (p.name+" "+p.location).toLowerCase().includes(q) &&
+    (!s||p.status===s) &&
+    (!t||p.type===t)
+  );
+
+  document.getElementById("propertyTable").innerHTML=`
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Monthly rent</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        ${
+          list.map(p=>`
+            <tr>
+              <td>
+                <strong>${esc(p.name)}</strong>
+                <div class="hint">ID: ${p.id}</div>
+              </td>
+
+              <td>${esc(p.type)}</td>
+              <td>${esc(p.location)}</td>
+              <td>₹${Number(p.rent).toLocaleString("en-IN")}</td>
+
+              <td>
+                <span class="pill ${p.status}">${p.status}</span>
+              </td>
+
+              <td>
+                <div class="actions">
+                  ${
+                    canManage()
+                    ? `
+                      <button class="secondary small" onclick="openProperty(${p.id})">Edit</button>
+                      <button class="danger small" onclick="deleteProperty(${p.id})">Delete</button>
+                    `
+                    : `<button class="small" onclick="openRequest(${p.id})">Request</button>`
+                  }
+                </div>
+              </td>
+            </tr>
+          `).join("") ||
+          '<tr><td colspan="6" class="empty">No matching properties found.</td></tr>'
+        }
+      </tbody>
+    </table>
+  `;
+}
+
+function openProperty(id) {
+  if(!canManage()) return;
+
+  const p=db.properties.find(x=>x.id===id);
+  editing={kind:"property",id:id||null};
+
+  document.getElementById("modalTitle").textContent=id?"Edit property":"Add property";
+
+  document.getElementById("modalFields").innerHTML=`
+    <div class="form-grid">
+      <div class="field full">
+        <label>Property name *</label>
+        <input name="name" required maxlength="80" value="${esc(p?.name||"")}">
+      </div>
+
+      <div class="field">
+        <label>Type *</label>
+        <select name="type" required>
+          ${["Apartment","Villa","Commercial","House"].map(x=>
+            `<option ${p?.type===x?"selected":""}>${x}</option>`
+          )}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Monthly rent (₹) *</label>
+        <input name="rent" type="number" min="0" required value="${p?.rent??""}">
+      </div>
+
+      <div class="field">
+        <label>Location *</label>
+        <input name="location" required value="${esc(p?.location||"")}">
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select name="status">
+          ${["Available","Occupied","Maintenance"].map(x=>
+            `<option ${p?.status===x?"selected":""}>${x}</option>`
+          )}
+        </select>
+      </div>
+
+      <div class="field full">
+        <label>Owner / agency</label>
+        <input name="owner" value="${esc(p?.owner||"EstateHub")}">
+      </div>
+    </div>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+}
+
+function deleteProperty(id) {
+  const p=db.properties.find(x=>x.id===id);
+  if(!p) return;
+
+  if(db.requests.some(r=>r.propertyId===id)) {
+    toast("Cannot delete: requests are linked to this property.");
+    return;
+  }
+
+  if(confirm(`Delete "${p.name}"? This cannot be undone.`)) {
+    db.properties=db.properties.filter(x=>x.id!==id);
+    logActivity(`Property "${p.name}" was deleted.`);
+    saveDB();
+    renderPage();
+    toast("Property deleted.");
+  }
+}
+
+function renderRequests() {
+  const list=db.requests.filter(r=>
+    currentUser.role!=="Tenant" || r.email===currentUser.email
+  );
+
+  document.getElementById("pageContent").innerHTML=`
+    <div class="page-head">
+      <div>
+        <h1>Requests & bookings</h1>
+        <div class="sub">Track booking, registration and maintenance workflows.</div>
+      </div>
+
+      <button onclick="openRequest()">＋ New request</button>
+    </div>
+
+    <div class="panel">
+      <div class="toolbar">
+        <input id="requestSearch" placeholder="Search requester or property..." oninput="filterRequests()">
+
+        <select id="requestStatus" onchange="filterRequests()">
+          <option value="">All statuses</option>
+          <option>Pending</option>
+          <option>Under Review</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+          <option>Completed</option>
+        </select>
+
+        <select id="requestType" onchange="filterRequests()">
+          <option value="">All request types</option>
+          <option>Booking</option>
+          <option>Maintenance</option>
+          <option>Registration</option>
+        </select>
+      </div>
+
+      <div id="requestTable" class="table-wrap"></div>
+    </div>
+  `;
+
+  filterRequests();
+}
+
+function requestRows(list,actions=true) {
+  if(!list.length) return '<div class="empty">No requests to display.</div>';
+
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Request</th>
+            <th>Property</th>
+            <th>Requester</th>
+            <th>Date</th>
+            <th>Status</th>
+            ${actions?'<th>Actions</th>':""}
+          </tr>
+        </thead>
+
+        <tbody>
+          ${
+            list.map(r=>`
+              <tr>
+                <td>
+                  <strong>${r.type}</strong>
+                  <div class="hint">#${r.id}</div>
+                </td>
+
+                <td>${esc(propertyName(r.propertyId))}</td>
+                <td>${esc(r.requester)}</td>
+                <td>${esc(r.date)}</td>
+
+                <td>
+                  <span class="pill ${r.status.replace(" ","-")}">${r.status}</span>
+                </td>
+
+                ${
+                  actions
+                  ? `
+                    <td>
+                      <div class="actions">
+                        ${
+                          canManage()
+                          ? `
+                            <select
+                              aria-label="Update request status"
+                              style="max-width:125px;padding:6px;border:1px solid #ddd;border-radius:7px"
+                              onchange="updateRequest(${r.id},this.value)"
+                            >
+                              ${
+                                ["Pending","Under Review","Approved","Rejected","Completed"].map(s=>
+                                  `<option ${r.status===s?"selected":""}>${s}</option>`
+                                )
+                              }
+                            </select>
+                          `
+                          : ""
+                        }
+
+                        <button class="secondary small" onclick="viewRequest(${r.id})">View</button>
+
+                        ${
+                          currentUser.role==="Admin"
+                          ? `<button class="danger small" onclick="deleteRequest(${r.id})">Delete</button>`
+                          : ""
+                        }
+                      </div>
+                    </td>
+                  `
+                  : ""
+                }
+              </tr>
+            `).join("")
+          }
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function filterRequests() {
+  const q=(document.getElementById("requestSearch")?.value||"").toLowerCase();
+  const s=document.getElementById("requestStatus")?.value||"";
+  const t=document.getElementById("requestType")?.value||"";
+
+  const list=db.requests.filter(r=>
+    (currentUser.role!=="Tenant"||r.email===currentUser.email) &&
+    (r.requester+" "+propertyName(r.propertyId)).toLowerCase().includes(q) &&
+    (!s||r.status===s) &&
+    (!t||r.type===t)
+  );
+
+  document.getElementById("requestTable").innerHTML=requestRows(list);
+}
+
+function openRequest(propertyId) {
+  editing={kind:"request",id:null};
+
+  document.getElementById("modalTitle").textContent="Submit a request";
+
+  document.getElementById("modalFields").innerHTML=`
+    <div class="field">
+      <label>Property *</label>
+      <select name="propertyId" required>
+        ${
+          db.properties.map(p=>`
+            <option value="${p.id}" ${propertyId===p.id?"selected":""}>
+              ${esc(p.name)} — ${esc(p.location)}
+            </option>
+          `).join("")
+        }
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Request type *</label>
+      <select name="type">
+        <option>Booking</option>
+        <option>Maintenance</option>
+        <option>Registration</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Details *</label>
+      <textarea name="details" rows="4" required minlength="8" maxlength="500"
+        placeholder="Describe your request (at least 8 characters)"></textarea>
+    </div>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+}
+
+function updateRequest(id,status) {
+  const r=db.requests.find(x=>x.id===id);
+  if(!r) return;
+
+  r.status=status;
+  logActivity(`${r.type} request #${id} status changed to ${status}.`);
+  saveDB();
+  renderPage();
+  toast("Request status updated.");
+}
+
+function viewRequest(id) {
+  const r=db.requests.find(x=>x.id===id);
+
+  if(r) alert(
+    `Request #${r.id}\n`+
+    `Type: ${r.type}\n`+
+    `Property: ${propertyName(r.propertyId)}\n`+
+    `Requester: ${r.requester}\n`+
+    `Email: ${r.email}\n`+
+    `Date: ${r.date}\n`+
+    `Status: ${r.status}\n\n`+
+    `Details: ${r.details}`
+  );
+}
+
+function deleteRequest(id) {
+  if(confirm("Delete this request?")) {
+    db.requests=db.requests.filter(r=>r.id!==id);
+    logActivity(`Request #${id} was deleted.`);
+    saveDB();
+    renderPage();
+    toast("Request deleted.");
+  }
+}
+
+function renderUsers() {
+  if(currentUser.role!=="Admin") return;
+
+  document.getElementById("pageContent").innerHTML=`
+    <div class="page-head">
+      <div>
+        <h1>User management</h1>
+        <div class="sub">Review registered accounts and assign portal roles.</div>
+      </div>
+    </div>
+
+    <div class="panel table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${
+            db.users.map(u=>`
+              <tr>
+                <td><strong>${esc(u.name)}</strong></td>
+                <td>${esc(u.email)}</td>
+                <td><span class="pill">${u.role}</span></td>
+
+                <td>
+                  ${
+                    u.id===currentUser.id
+                    ? '<span class="muted">Current user</span>'
+                    : `<button class="secondary small" onclick="editUser(${u.id})">Edit role</button>`
+                  }
+                </td>
+              </tr>
+            `).join("")
+          }
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function editUser(id) {
+  const u=db.users.find(x=>x.id===id);
+  if(!u) return;
+
+  editing={kind:"user",id};
+
+  document.getElementById("modalTitle").textContent="Edit user";
+
+  document.getElementById("modalFields").innerHTML=`
+    <div class="field">
+      <label>Name</label>
+      <input name="name" required value="${esc(u.name)}">
+    </div>
+
+    <div class="field">
+      <label>Role</label>
+      <select name="role">
+        <option ${u.role==="Tenant"?"selected":""}>Tenant</option>
+        <option ${u.role==="Manager"?"selected":""}>Manager</option>
+        <option ${u.role==="Admin"?"selected":""}>Admin</option>
+      </select>
+    </div>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+}
+
+function renderReports() {
+  const total=db.properties.length;
+  const available=db.properties.filter(p=>p.status==="Available").length;
+  const occupied=db.properties.filter(p=>p.status==="Occupied").length;
+  const maint=db.properties.filter(p=>p.status==="Maintenance").length;
+
+  const req=db.requests.length;
+
+  const approved=db.requests.filter(r=>
+    r.status==="Approved"||r.status==="Completed"
+  ).length;
+
+  const pending=db.requests.filter(r=>
+    r.status==="Pending"||r.status==="Under Review"
+  ).length;
+
+  const pct=n=>total?Math.round(n/total*100):0;
+
+  document.getElementById("pageContent").innerHTML=`
+    <div class="page-head">
+      <div>
+        <h1>Reports</h1>
+        <div class="sub">A quick overview of property and workflow performance.</div>
+      </div>
+
+      <button class="secondary" onclick="window.print()">Print report</button>
+    </div>
+
+    <div class="stats">
+      ${stat("Properties",total,"Total records")}
+      ${stat("Requests",req,"All request types")}
+      ${stat("Approved / completed",approved,"Requests progressed")}
+      ${stat("Pending / review",pending,"Needs attention")}
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Property status breakdown</h3>
+
+        ${
+          [["Available",available],["Occupied",occupied],["Maintenance",maint]].map(([n,v])=>`
+            <div class="bar-row">
+              <span>${n}</span>
+              <div class="bar">
+                <span style="width:${pct(v)}%"></span>
+              </div>
+              <strong>${v}</strong>
+            </div>
+          `).join("")
+        }
+
+        <p class="hint">
+          Percentages are calculated against ${total} total properties.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>Request status breakdown</h3>
+
+        ${
+          ["Pending","Under Review","Approved","Rejected","Completed"].map(s=>{
+            const n=db.requests.filter(r=>r.status===s).length;
+
+            return `
+              <div class="bar-row">
+                <span>${s}</span>
+                <div class="bar">
+                  <span style="width:${req?Math.round(n/req*100):0}%"></span>
+                </div>
+                <strong>${n}</strong>
+              </div>
+            `;
+          }).join("")
+        }
+
+        <p class="hint">Includes all requests in the portal.</p>
+      </div>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
